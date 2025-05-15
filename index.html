@@ -1,0 +1,110 @@
+<div class="main-div" id="container"></div>
+
+<script>
+    const container = document.getElementById("container");
+
+    // Create input fields
+    const nameInput = document.createElement("input");
+    nameInput.placeholder = "Movie Name";
+    nameInput.id = "movieName";
+    container.appendChild(nameInput);
+
+    const descInput = document.createElement("textarea");
+    descInput.placeholder = "Movie Description";
+    descInput.id = "movieDesc";
+    container.appendChild(descInput);
+
+    // Create buttons
+    const createButton = document.createElement("button");
+    createButton.innerHTML = "Create";
+    container.appendChild(createButton);
+    createButton.onclick = createMovie;
+
+    const readButton = document.createElement("button");
+    readButton.innerHTML = "Read";
+    container.appendChild(readButton);
+    readButton.onclick = readMovies;
+
+    // Create movie
+    function createMovie() {
+        const name = document.getElementById("movieName").value.trim();
+        const desc = document.getElementById("movieDesc").value.trim();
+
+        if (!name) {
+            alert("Movie name is required.");
+            return;
+        }
+
+        const movie = { name, desc };
+        let movies = JSON.parse(localStorage.getItem("Movies")) || [];
+        movies.push(movie);
+        localStorage.setItem("Movies", JSON.stringify(movies));
+        alert("Movie added successfully!");
+    }
+
+    // Read movies
+function readMovies() {
+    const movieCards = document.getElementsByClassName("movie-card");
+    while (movieCards.length > 0) {
+        movieCards[0].remove(); // Remove existing movie cards
+    }
+
+    const movies = JSON.parse(localStorage.getItem("Movies")) || [];
+    const displayContainer = document.getElementById("container");
+
+    for (let i = 0; i < movies.length; i++) {
+        const movieDiv = document.createElement("div");
+        movieDiv.className = "movie-card";
+        movieDiv.innerHTML = "<h3>" + movies[i].name + "</h3><p>" + movies[i].desc + "</p>";
+        displayContainer.appendChild(movieDiv);
+
+        // Update button
+        const updateButton = document.createElement("button");
+        updateButton.innerHTML = "Update";
+        updateButton.onclick = function() { updateMovie(i); };
+        movieDiv.appendChild(updateButton);
+
+        // Delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.innerHTML = "Delete";
+        deleteButton.onclick = function() { deleteMovie(i); };
+        movieDiv.appendChild(deleteButton);
+    }
+}
+
+// Delete a movie (without splice)
+function deleteMovie(index) {
+    let movies = JSON.parse(localStorage.getItem("Movies")) || [];
+
+    // Manually shift elements to remove the item
+    for (let i = index; i < movies.length - 1; i++) {
+        movies[i] = movies[i + 1]; 
+    }
+    movies.pop(); // Remove last element
+
+    localStorage.setItem("Movies", JSON.stringify(movies));
+    readMovies(); // Refresh the display
+}
+
+    // Update a movie
+    function updateMovie(index) {
+        const movies = JSON.parse(localStorage.getItem("Movies")) || [];
+        const newName = prompt("Enter new movie name:", movies[index].name);
+        const newDesc = prompt("Enter new description:", movies[index].desc);
+
+        if (newName) {
+            movies[index].name = newName;
+            movies[index].desc = newDesc || "";
+            localStorage.setItem("Movies", JSON.stringify(movies));
+            readMovies();
+        }
+    }
+
+    // Delete a movie
+    function deleteMovie(index) {
+        let movies = JSON.parse(localStorage.getItem("Movies")) || [];
+        movies.splice(index, 1);
+        localStorage.setItem("Movies", JSON.stringify(movies));
+        readMovies();
+    }
+</script>
